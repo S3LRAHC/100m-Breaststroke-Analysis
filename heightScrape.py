@@ -1,4 +1,4 @@
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import sync_playwright, expect
 import pandas as pd
 
 # read csv
@@ -30,10 +30,10 @@ SEARCH_ENTER = "//button[@type='submit']"
 ATHLETE_PAGE = "//div[@class='athlete-table__name']"
 ATHLETE_PROFILE = "//a[@title='Profile']"
 ATHLETE_HEIGHT = "//*[@id='main-content']/section[1]/div[1]/div[1]/div[2]/span[2]"
+SORRY_TEXT = "//span[@class='empty-state_summary']"
 
 # getting list of athlete height
-heightList = []
-for i in range(len(names)):
+for i in range(180,len(names)):
     firstName = firstNames[i]
     lastName = lastNames[i]
     athleteHeight = ''
@@ -49,22 +49,25 @@ for i in range(len(names)):
         page.keyboard.press('Enter')
 
         # go to athlete page
-        page.click(ATHLETE_PAGE)
-
-        # go to athlete profile
-        page.click(ATHLETE_PROFILE)
-
-        # get athlete height
-        athleteHeight = page.text_content(ATHLETE_HEIGHT)
-        athleteHeight = athleteHeight.strip()
         try:
-            athleteHeight = int(athleteHeight)
-        except ValueError:
-            pass
-        
-    heightList.append(athleteHeight)
-    print(heightList)
+            page.click(ATHLETE_PAGE, timeout=5000)
+            # go to athlete profile
+            page.click(ATHLETE_PROFILE)
 
-# appending to csv
-height_df = pd.DataFrame({'height': heightList})
-height_df.to_csv('100m_breaststroke', mode='a', index=False, header=False)
+            # get athlete height
+            athleteHeight = page.text_content(ATHLETE_HEIGHT)
+            athleteHeight = athleteHeight.strip()
+            try:
+                athleteHeight = int(athleteHeight)
+            except ValueError:
+                pass
+        except:
+            print('-')
+            df.loc[i, 'height'] = '-'
+            df.to_csv('100m_breaststroke.csv', header=True, index=False)
+            continue
+
+    # appending to csv
+    print(athleteHeight)
+    df.loc[i, 'height'] = athleteHeight
+    df.to_csv('100m_breaststroke.csv', header=True, index=False)
