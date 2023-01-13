@@ -33,9 +33,9 @@ for key, value in capitals.items():
 
     if value != '-':
         with sync_playwright() as p:
-            browser = p.chromium.launch(headless=False)
+            browser = p.chromium.launch(channel="msedge", headless=False)
             page = browser.new_page()
-            page.goto(newUrl)
+            page.goto(newUrl, timeout=0)
             content = page.text_content(TEXT)
 
         minusIndex = content.rfind('-')
